@@ -1,0 +1,46 @@
+npm install nodemon
+npm install express
+npm install express body-parser mongoose cors logger
+npm install morgan
+npm i helmet
+npm i dotenv
+npm i nodemailer
+npm i jsonwebtoken
+npm i bcrypt
+
+
+user:
+
+  "email": "freetoweb7@gmail.com",
+  "password": "password123"
+
+Admin:
+  "email": "admin1@collegites.tech",
+  "password": "admin@123"
+
+Moderator:
+  "email": "Moderator1@collegites.tech",
+  "password": "Moderator1@123"
+  
+Server.js
+ How is it better than what noramally used in my previous server.js ->
+ The normalizePort() function has been removed. This function is no longer necessary because the app.listen() method can now handle both port numbers and named pipes.
+ The onError() and onListening() functions have been removed. These functions are no longer necessary because the app.listen() method now emits an error event and a listening event.
+ The debug() function has been removed. This function is no longer necessary because the console.log() method can now be used to log messages to the console.
+
+APP.js
+ How is it better than what noramally used in my previous app.js ->
+ Used the module.exports keyword to export the app object. This will allow you to use the app object in other files.
+ Add error handling to the mongoose.connect() method. This will ensure that the code gracefully handles errors that occur when connecting to the database.
+ Use the body-parser middleware to parse the request body. This will allow you to access the data that is submitted in the request body.
+ Use the cors middleware to allow cross-origin requests. This will allow the app to be accessed from other domains.
+ Use the logger middleware to log requests and responses. This will help you to debug the app and track its performance.
+ The express.static() middleware was added to the app.use() method. This will allow the app to serve static files, such as images and CSS files.
+ The helmet middleware was added to the app.use() method. This will protect the app from common security vulnerabilities.
+
+
+
+ Delete This
+ starting
+ 6/20 
+ 3:28 - user routes
