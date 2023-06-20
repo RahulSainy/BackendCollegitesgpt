@@ -127,6 +127,12 @@ exports.login = async (req, res) => {
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
+      
+    // Check if the email is confirmed
+    if (!user.isEmailConfirmed) {
+      return res.status(401).json({ error: 'Please confirm your email address' });
+    }
+
       console.log("till here delete")
       // Validate user password
       
