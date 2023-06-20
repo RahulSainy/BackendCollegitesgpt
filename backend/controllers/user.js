@@ -52,7 +52,7 @@ console.log("MAIL_PASSWORD:", process.env.MAIL_PASSWORD); // Add this line
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'freetoweb5@gmail.com',
+      user: process.env.MAIL_USERNAME,
       pass:  process.env.MAIL_PASSWORD,
     }
   });
@@ -61,10 +61,11 @@ console.log("MAIL_PASSWORD:", process.env.MAIL_PASSWORD); // Add this line
   const mailOptions = {
     from: 'admin@collegites.tech',
     to: user.email,
-    subject: 'Email Confirmation',
+    subject: 'Email Confirmation collegites',
     html: `
-      <h1>Please confirm your email address</h1>
+      <h1>Please confirm your email address for collegites.tech</h1>
       <p>Click on the following link to confirm your email address:</p>
+      
       <a href="${confirmationLink}">Confirm Email</a>
     `
   };
