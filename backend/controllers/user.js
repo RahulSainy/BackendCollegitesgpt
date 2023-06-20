@@ -58,15 +58,26 @@ console.log("MAIL_PASSWORD:", process.env.MAIL_PASSWORD); // Add this line
   });
 
   const confirmationLink = `http://localhost:3000/api/users/confirm-email?email=${user.email}`;
+  const logoUrl = 'https://i.ibb.co/VV67cNb/Collegiteslogo.gif';
   const mailOptions = {
     from: 'admin@collegites.tech',
     to: user.email,
     subject: 'Email Confirmation collegites',
     html: `
-      <h1>Please confirm your email address for collegites.tech</h1>
-      <p>Click on the following link to confirm your email address:</p>
-      
-      <a href="${confirmationLink}">Confirm Email</a>
+       <div style="font-family: Arial, sans-serif; text-align: center;">
+        <img src="${logoUrl}" alt="Collegites - Study Smart" style="max-width: 200px; border-radius: 12px;">
+        <h1 style="color: #0056b3;">Please Confirm Your Email Address</h1>
+        <p style="font-size: 16px;">Thank you for choosing Collegites - Study Smart! We're excited to have you join our platform and embark on a journey of knowledge and growth.</p>
+        <p style="font-size: 16px;">To get started, click the button below to confirm your email address:</p>
+        <div style="margin-top: 30px;">
+          <a href="${confirmationLink}" style="display: inline-block; padding: 12px 24px; background-color: #0056b3; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px;">Confirm Email Address</a>
+        </div>
+        <p style="font-size: 14px; margin-top: 30px;">If you have any questions or need assistance, please contact our support team at <a href="mailto:support@collegites.tech">support@collegites.tech</a>.</p>
+        <p style="font-size: 14px; margin-top: 30px;">Best regards,</p>
+        <p style="font-size: 14px; margin-bottom: 0;">Collegites - Study Smart </p>
+        <p style="font-size: 5px; margin-bottom: 0;">A BlackR Industries Initiative</p>
+        <img src="${logoUrl}" alt="Collegites - Study Smart Logo" style="max-width: 100px; margin-top: 20px;  border-radius: 12px;">
+      </div>
     `
   };
 console.log("before send mail")
