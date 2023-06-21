@@ -7,19 +7,42 @@ const crypto = require('crypto');
 const logoUrl = 'https://i.ibb.co/VV67cNb/Collegiteslogo.gif';
 const BlackrLogoUrl = 'https://i.ibb.co/qxcmCCw/Blackr-Rupee-Logo.png';
 
+const normalizeEmail = (email) => {
+  // Remove everything after the "+" symbol in the email address
+  const atIndex = email.indexOf('@');
+  const plusIndex = email.indexOf('+');
+  if (plusIndex !== -1 && atIndex !== -1 && plusIndex < atIndex) {
+    email = email.slice(0, plusIndex) + email.slice(atIndex);
+  }
+  
+  // Convert the email address to lowercase
+  email = email.toLowerCase();
+  
+  // Remove any extra spaces or special characters from the email address
+  email = email.trim();
+
+  return email;
+};
+
+
 // User sign-up controller function
 exports.signUp = async (req, res) => {
     try {
       // Extract the required user data from the request body
       const { name, email, phone, password, role } = req.body;
   // Hash the password
+  const normalizedEmail = normalizeEmail(email);
+  const existingUser = await User.findOne({ email: normalizedEmail });
+  if (existingUser) {
+    return res.status(400).json({ error: 'Email address is already registered' });
+  }
 
   const hashedPassword = await hashPassword(password);
 
       // Create a new User object
       const user = new User({
         name,
-        email,
+        email: normalizedEmail,
         phone,
         password: hashedPassword,
         isEmailConfirmed: false,
@@ -245,11 +268,12 @@ const sendResetPasswordEmail = async (user, resetToken) => {
       <img src="${logoUrl}" alt="Collegites - Study Smart" style="max-width: 150px; border-radius: 12px;">
       <h1 style="color: #0056b3;">Reset Your Password</h1>
       <p style="font-size: 16px;">Hello ${user.name},</p>
-      <p style="font-size: 16px;">We received a request to reset your password. If you made this request, click the button below to reset your password:</p>
+      <p style="font-size: 16px;">We received a request to reset your password for ${user.email}. If you made this request, click the button below to reset your password:</p>
       <div style="margin-top: 30px;">
         <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #0056b3; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px;">Reset Password</a>
       </div>
       <p style="font-size: 14px; margin-top: 30px;">If you didn't request a password reset, please ignore this email. Your password will remain unchanged.</p>
+      <hr>
       <p style="font-size: 14px; margin-top: 30px;">Best regards,</p>
       <p style="font-size: 14px; margin-bottom: 0;">Collegites - Study Smart</p>
       <p style="font-size: 14px; margin-bottom: 0;">A BlackR Industries Initiative</p>
