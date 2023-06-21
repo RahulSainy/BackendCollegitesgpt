@@ -12,6 +12,16 @@ router.post('/login', userController.login);
 // User email confirmation route
 router.get('/confirm-email', userController.confirmEmail);
 
+
+
+// Forget password route
+router.post('/forget-password', userController.forgetPassword);
+
+// Reset password route
+router.post('/reset-password', userController.resetPassword);
+
+
+
 // Protected route example
 router.get('/protected-route', authMiddleware, (req, res) => {
   res.send('This is a protected route');

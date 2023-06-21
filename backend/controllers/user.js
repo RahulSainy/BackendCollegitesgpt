@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const { hashPassword, comparePassword } = require('../utils/password');
 
 
+const logoUrl = 'https://i.ibb.co/VV67cNb/Collegiteslogo.gif';
+const BlackrLogoUrl = 'https://i.ibb.co/qxcmCCw/Blackr-Rupee-Logo.png';
+
 // User sign-up controller function
 exports.signUp = async (req, res) => {
     try {
@@ -58,14 +61,13 @@ console.log("MAIL_PASSWORD:", process.env.MAIL_PASSWORD); // Add this line
   });
 
   const confirmationLink = `http://localhost:3000/api/users/confirm-email?email=${user.email}`;
-  const logoUrl = 'https://i.ibb.co/VV67cNb/Collegiteslogo.gif';
   const mailOptions = {
     from: 'admin@collegites.tech',
     to: user.email,
     subject: 'Email Confirmation collegites',
     html: `
        <div style="font-family: Arial, sans-serif; text-align: center;">
-        <img src="${logoUrl}" alt="Collegites - Study Smart" style="max-width: 200px; border-radius: 12px;">
+        <img src="${logoUrl}" alt="Collegites - Study Smart" style="max-width: 150px; border-radius: 12px;">
         <h1 style="color: #0056b3;">Please Confirm Your Email Address</h1>
         <p style="font-size: 16px;">Thank you for choosing Collegites - Study Smart! We're excited to have you join our platform and embark on a journey of knowledge and growth.</p>
         <p style="font-size: 16px;">To get started, click the button below to confirm your email address:</p>
@@ -76,7 +78,7 @@ console.log("MAIL_PASSWORD:", process.env.MAIL_PASSWORD); // Add this line
         <p style="font-size: 14px; margin-top: 30px;">Best regards,</p>
         <p style="font-size: 14px; margin-bottom: 0;">Collegites - Study Smart </p>
         <p style="font-size: 5px; margin-bottom: 0;">A BlackR Industries Initiative</p>
-        <img src="${logoUrl}" alt="Collegites - Study Smart Logo" style="max-width: 100px; margin-top: 20px;  border-radius: 12px;">
+        <img src="${BlackrLogoUrl}" alt="BlackR Industries - Study Smart Logo" style="max-width: 100px; margin-top: 20px;  border-radius: 4px">
       </div>
     `
   };
@@ -159,6 +161,107 @@ const generateToken = (userId) => {
   // Generate a JWT token with the user ID as payload
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
   return token;
+};
+
+
+// User forget password controller function
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Find the user with the provided email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Generate a reset token and set its expiration time
+    const resetToken = jwt.sign({ userId: user.id }, process.env.RESET_TOKEN_SECRET, { expiresIn: '4h' });
+
+    // Update the user's reset token and token expiration time
+    console.log("Token before", resetToken)
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordTokenExpiresAt = Date.now() + 3600000; // 1 hour
+    await user.save();
+    console.log("Token after saving ", resetToken)
+    // Send an email with the reset password link
+    await sendResetPasswordEmail(user, resetToken);
+
+    // Return a success response
+    res.json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+// User reset password controller function
+exports.resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+
+    // Find the user by the reset token
+    const user = await User.findOne({ resetPasswordToken: resetToken });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+
+    // Check if the reset token has expired
+    if (user.resetPasswordTokenExpiresAt < Date.now()) {
+      return res.status(400).json({ error: 'Reset token has expired' });
+    }
+
+    // Hash the new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update the user's password and reset token
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordTokenExpiresAt = undefined;
+    await user.save();
+
+    // Return a success response
+    res.json({ message: 'Password reset successful' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const sendResetPasswordEmail = async (user, resetToken) => {
+  console.log("Token in send ", resetToken)
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PASSWORD,
+    }
+  });
+
+  const resetLink = `http://localhost:3000/api/users/reset-password?token=${resetToken}`;
+  const mailOptions = {
+    from: 'admin@collegites.tech',
+    to: user.email,
+    subject: 'Reset Password - Collegites',
+    html: `
+      <div style="font-family: Arial, sans-serif; text-align: center;">
+      <img src="${logoUrl}" alt="Collegites - Study Smart" style="max-width: 150px; border-radius: 12px;">
+      <h1 style="color: #0056b3;">Reset Your Password</h1>
+      <p style="font-size: 16px;">Hello ${user.name},</p>
+      <p style="font-size: 16px;">We received a request to reset your password. If you made this request, click the button below to reset your password:</p>
+      <div style="margin-top: 30px;">
+        <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #0056b3; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px;">Reset Password</a>
+      </div>
+      <p style="font-size: 14px; margin-top: 30px;">If you didn't request a password reset, please ignore this email. Your password will remain unchanged.</p>
+      <p style="font-size: 14px; margin-top: 30px;">Best regards,</p>
+      <p style="font-size: 14px; margin-bottom: 0;">Collegites - Study Smart</p>
+      <p style="font-size: 14px; margin-bottom: 0;">A BlackR Industries Initiative</p>
+      <img src="${BlackrLogoUrl}" alt="BlackR Industries - Study Smart Logo" style="max-width: 100px; margin-top: 20px;  border-radius: 4px;">
+    </div>
+    
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
 };
 
 // User controller function to promote a user to moderator
