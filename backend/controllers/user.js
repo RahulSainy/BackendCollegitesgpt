@@ -2,7 +2,7 @@ const User = require('../models/user');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const { hashPassword, comparePassword } = require('../utils/password');
-
+const crypto = require('crypto');
 
 const logoUrl = 'https://i.ibb.co/VV67cNb/Collegiteslogo.gif';
 const BlackrLogoUrl = 'https://i.ibb.co/qxcmCCw/Blackr-Rupee-Logo.png';
@@ -162,8 +162,6 @@ const generateToken = (userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
   return token;
 };
-
-
 // User forget password controller function
 exports.forgetPassword = async (req, res) => {
   try {
@@ -176,15 +174,15 @@ exports.forgetPassword = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Generate a reset token and set its expiration time
-    const resetToken = jwt.sign({ userId: user.id }, process.env.RESET_TOKEN_SECRET, { expiresIn: '4h' });
+    // Generate a unique reset token and set its expiration time
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     // Update the user's reset token and token expiration time
-    console.log("Token before", resetToken)
-    user.resetPasswordToken = resetToken;
+    user.resetPasswordToken = hashedToken;
     user.resetPasswordTokenExpiresAt = Date.now() + 3600000; // 1 hour
     await user.save();
-    console.log("Token after saving ", resetToken)
+
     // Send an email with the reset password link
     await sendResetPasswordEmail(user, resetToken);
 
@@ -194,13 +192,14 @@ exports.forgetPassword = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 // User reset password controller function
 exports.resetPassword = async (req, res) => {
   try {
     const { resetToken, newPassword } = req.body;
 
-    // Find the user by the reset token
-    const user = await User.findOne({ resetPasswordToken: resetToken });
+    // Find the user by the hashed reset token
+    const user = await User.findOne({ resetPasswordToken: crypto.createHash('sha256').update(resetToken).digest('hex') });
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid reset token' });
@@ -226,7 +225,6 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 const sendResetPasswordEmail = async (user, resetToken) => {
   console.log("Token in send ", resetToken)
   const transporter = nodemailer.createTransport({
@@ -263,6 +261,7 @@ const sendResetPasswordEmail = async (user, resetToken) => {
 
   await transporter.sendMail(mailOptions);
 };
+
 
 // User controller function to promote a user to moderator
 exports.promoteToModerator = async (req, res) => {
