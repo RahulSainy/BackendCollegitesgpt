@@ -11,6 +11,8 @@ dotenv.config();
 
 // const notesRoute = require("./routes/notes");
 const userRoute = require("./routes/user");
+const subjectRoute = require("./routes/subject");
+const noteRoute = require("./routes/note");
 
 const app = express();
 
@@ -25,6 +27,8 @@ connectToDatabase();
 
 // app.use("/api/notes", notesRoute);
 app.use("/api/users", userRoute);
+app.use("/api/subjects", subjectRoute);
+app.use("/api/notes", noteRoute);
 
 app.use("/static", express.static("public"));
 
