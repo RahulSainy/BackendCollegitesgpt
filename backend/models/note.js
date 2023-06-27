@@ -1,43 +1,46 @@
+// note.js (model file)
+
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const noteSchema = new mongoose.Schema(
-  {
-    semesterId: {
-      type: String,
-      required: true,
-    },
-    branchId: {
-      type: String,
-      required: true,
-    },
-    subjectName: {
-      type: String,
-      required: true,
-    },
-    source: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        units: [
-          {
-            name: {
-              type: String,
-              required: true,
-            },
-            content: {
-              type: String,
-              required: true,
-            },
-          },
-        ],
-      },
-    ],
+const unitSchema = new Schema({
+  unitName: {
+    type: String,
+    required: true
   },
-  { timestamps: true }
-);
+  topics: {
+    type: String,
+    required: true
+  },
+  pdfLink: {
+    type: String,
+    required: true
+  },
 
-const Note = mongoose.model('Note', noteSchema);
+});
 
-module.exports = Note;
+const sourceSchema = new Schema({
+  sourceName: {
+    type: String,
+    required: true
+  },
+  units: [unitSchema]
+});
+
+const noteSchema = new Schema({
+  semesterId: {
+    type: String,
+    required: true
+  },
+  branchId: {
+    type: String,
+    required: true
+  },
+  subjectId: {
+    type: String,
+    required: true
+  },
+  sources: [sourceSchema]
+});
+
+module.exports = mongoose.model('Note', noteSchema);

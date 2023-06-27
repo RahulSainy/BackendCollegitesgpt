@@ -27,8 +27,9 @@ connectToDatabase();
 
 // app.use("/api/notes", notesRoute);
 app.use("/api/users", userRoute);
-app.use("/api/subjects", subjectRoute);
-app.use("/api/notes", noteRoute);
+// Use the routes with the desired structure
+app.use("/api", subjectRoute);
+app.use("/api", noteRoute);
 
 app.use("/static", express.static("public"));
 

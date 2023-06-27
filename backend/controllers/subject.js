@@ -1,84 +1,77 @@
+// subjectController.js
+
 const Subject = require('../models/subject');
 
-// Get all subjects
-exports.getAllSubjects = async (req, res) => {
+// Get all subjects of a specific semester and branch
+exports.getSubjects = async (req, res) => {
+  const { semester, branch } = req.params;
   try {
-    const subjects = await Subject.find();
-    res.status(200).json(subjects);
+    const subjects = await Subject.find({ semesterId: semester, branchId: branch });
+    res.json(subjects);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to retrieve subjects' });
   }
 };
-
-// Get all subjects of a specific semester and branch
-exports.getSubjectsBySemesterAndBranch = async (req, res) => {
-  const { semesterId, branchId } = req.params;
-
+// Get a specific subject
+exports.getSubject = async (req, res) => {
+  const { semester, branch, subject: subjectName } = req.params;
   try {
-    const subjects = await Subject.find({ semesterId, branchId });
-    res.status(200).json(subjects);
+    const subject = await Subject.findOne({ semesterId: semester, branchId: branch, name: subjectName });
+    if (!subject) {
+      return res.status(404).json({ error: 'Subject not found' });
+    }
+    res.json(subject);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to retrieve subject' });
   }
 };
 
 
 // Create a new subject
 exports.createSubject = async (req, res) => {
-  const { semesterId, branchId } = req.params;
-  const { name } = req.body;
-
+  const { semester, branch } = req.params;
+  const { subjectName } = req.body;
   try {
-    const subject = new Subject({ semesterId, branchId, name });
-    await subject.save();
-    res.status(201).json(subject);
+    const newSubject = await Subject.create({
+      semesterId: semester,
+      branchId: branch,
+      name: subjectName
+    });
+    res.json(newSubject);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to create subject' });
   }
 };
 
-// Get a specific subject
-exports.getSubject = async (req, res) => {
-  const { semesterId, branchId, subjectName } = req.params;
-
-  try {
-    const subject = await Subject.findOne({ semesterId, branchId, name: subjectName });
-    if (!subject) {
-      return res.status(404).json({ error: 'Subject not found' });
-    }
-    res.status(200).json(subject);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-// Update a subject
+// Update a specific subject
 exports.updateSubject = async (req, res) => {
-  const { semesterId, branchId, subjectName } = req.params;
-  const { name } = req.body;
-  
+  const { semester, branch, subject } = req.params;
+  const { updatedSubjectName } = req.body;
   try {
-    const subject = await Subject.findOneAndUpdate({ semesterId, branchId, name: subjectName }, { name }, { new: true });
-    if (!subject) {
+    const subjectToUpdate = await Subject.findOneAndUpdate(
+      { semesterId: semester, branchId: branch, name: subject },
+      { name: updatedSubjectName },
+      { new: true }
+    );
+    if (!subjectToUpdate) {
       return res.status(404).json({ error: 'Subject not found' });
     }
-    res.status(200).json(subject);
+    res.json(subjectToUpdate);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to update subject' });
   }
 };
 
-// Delete a subject
+// Delete a specific subject
 exports.deleteSubject = async (req, res) => {
-  const { semesterId, branchId, subjectName } = req.params;
-  
+  const { semester, branch, subject } = req.params;
   try {
-    const subject = await Subject.findOneAndDelete({ semesterId, branchId, name: subjectName });
-    if (!subject) {
+    const deletedSubject = await Subject.findOneAndDelete({ semesterId: semester, branchId: branch, name: subject });
+    if (!deletedSubject) {
       return res.status(404).json({ error: 'Subject not found' });
     }
-    res.status(200).json({ message: 'Subject deleted successfully' });
+    res.json({ message: 'Subject deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to delete subject' });
   }
 };

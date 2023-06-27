@@ -1,27 +1,47 @@
 const express = require('express');
 const router = express.Router();
-
-const subjectsController = require('../controllers/subject');
-
-// Create a new subject
-router.post('/semester/:semesterId/branch/:branchId/subject', subjectsController.createSubject);
-
-// Get all subjects
-router.get('/', subjectsController.getAllSubjects);
+const subjectController = require('../controllers/subject');
 
 // Get all subjects of a specific semester and branch
-router.get('/semester/:semesterId/branch/:branchId', subjectsController.getSubjectsBySemesterAndBranch);
+router.get('/semester/:semester/branch/:branch/subjects', subjectController.getSubjects);
 
 // Get a specific subject
-router.get('/semester/:semesterId/branch/:branchId/subject/:subjectName', subjectsController.getSubject);
+router.get('/semester/:semester/branch/:branch/subjects/:subject', subjectController.getSubject);
 
-// Update a subject
-router.put('/semester/:semesterId/branch/:branchId/subject/:subjectName', subjectsController.updateSubject);
+// Create a new subject
+router.post('/semester/:semester/branch/:branch/subjects', subjectController.createSubject);
 
-// Delete a subject
-router.delete('/semester/:semesterId/branch/:branchId/subject/:subjectName', subjectsController.deleteSubject);
+// Update a specific subject
+router.put('/semester/:semester/branch/:branch/subjects/:subject', subjectController.updateSubject);
+
+// Delete a specific subject
+router.delete('/semester/:semester/branch/:branch/subjects/:subject', subjectController.deleteSubject);
 
 module.exports = router;
+
+
+
+// const express = require('express');
+// const router = express.Router();
+// const subjectController = require('../controllers/subject');
+
+// // Get all subjects of a specific semester and branch
+// router.get('/semester/:semester/branch/:branch/subjects', subjectController.getSubjects);
+
+// // Get a specific subject
+// router.get('/semester/:semester/branch/:branch/subjects/:subject', subjectController.getSubject);
+
+// // Create a new subject
+// router.post('/semester/:semester/branch/:branch/subjects', subjectController.createSubject);
+
+// // Update a specific subject
+// router.put('/semester/:semester/branch/:branch/subjects/:subject', subjectController.updateSubject);
+
+// // Delete a specific subject
+// router.delete('/semester/:semester/branch/:branch/subjects/:subject', subjectController.deleteSubject);
+
+// module.exports = router;
+
 
 
 
