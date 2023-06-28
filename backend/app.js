@@ -13,7 +13,8 @@ dotenv.config();
 const userRoute = require("./routes/user");
 const subjectRoute = require("./routes/subject");
 const noteRoute = require("./routes/note");
-
+const bookRoute = require("./routes/book");
+const courseRoute = require("./routes/course");
 const app = express();
 
 app.use(cors());
@@ -30,7 +31,8 @@ app.use("/api/users", userRoute);
 // Use the routes with the desired structure
 app.use("/api", subjectRoute);
 app.use("/api", noteRoute);
-
+app.use("/api", bookRoute);
+app.use("/api",courseRoute);
 app.use("/static", express.static("public"));
 
 module.exports = app;

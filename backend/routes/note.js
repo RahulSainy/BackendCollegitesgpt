@@ -10,9 +10,9 @@ router.post('/semester/:semester/branch/:branch/subjects/:subject/notes/source/:
 // User routes
 router.get('/semester/:semester/branch/:branch/subjects/:subject/notes', noteController.getNotes);
 router.get('/semester/:semester/branch/:branch/subjects/:subject/notes/sources', noteController.getNoteSources);
-router.get('/semester/:semester/branch/:branch/subjects/:subject/notes/:source/:unit', noteController.getNoteUnit);
-router.put('/semester/:semester/branch/:branch/subjects/:subject/notes/:source/:unit', noteController.updateNoteUnit);
-router.delete('/semester/:semester/branch/:branch/subjects/:subject/notes/:source/:unit', noteController.deleteNoteUnit);
+router.get('/semester/:semester/branch/:branch/subjects/:subject/notes/sources/:source/:unit', noteController.getNoteUnit);
+router.put('/semester/:semester/branch/:branch/subjects/:subject/notes/sources/:source/:unit', noteController.updateNoteUnit);
+router.delete('/semester/:semester/branch/:branch/subjects/:subject/notes/sources/:source/:unit', noteController.deleteNoteUnit);
 
 module.exports = router;
 
