@@ -10,7 +10,9 @@ const connectToDatabase = require("./conifg/database");
 dotenv.config();
 
 // const notesRoute = require("./routes/notes");
+const authRoute = require("./routes/auth");
 const userRoute = require("./routes/user");
+
 const subjectRoute = require("./routes/subject");
 const noteRoute = require("./routes/note");
 const bookRoute = require("./routes/book");
@@ -27,7 +29,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 connectToDatabase();
 
 // app.use("/api/notes", notesRoute);
-app.use("/api/users", userRoute);
+app.use("/api", authRoute);
+app.use("/api", userRoute);
 // Use the routes with the desired structure
 app.use("/api", subjectRoute);
 app.use("/api", noteRoute);

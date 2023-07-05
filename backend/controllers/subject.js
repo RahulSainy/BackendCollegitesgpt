@@ -29,6 +29,13 @@ exports.getSubject = async (req, res) => {
 
 // Create a new subject
 exports.createSubject = async (req, res) => {
+  // if (!req.user.isAdmin) {
+  //   return res.status(403).json({ error: 'You are not authorized to perform this action' });
+  // }
+  if (req.user.role !== 'Admin') {
+    return res.status(403).json({ error: 'You are not authorized to perform this action' });
+  }
+
   const { semester, branch } = req.params;
   const { subjectName } = req.body;
   try {
@@ -45,6 +52,12 @@ exports.createSubject = async (req, res) => {
 
 // Update a specific subject
 exports.updateSubject = async (req, res) => {
+  // if (!req.user.isAdmin) {
+  //   return res.status(403).json({ error: 'You are not authorized to perform this action' });
+  // }
+  if (req.user.role !== 'Admin') {
+    return res.status(403).json({ error: 'You are not authorized to perform this action' });
+  }
   const { semester, branch, subject } = req.params;
   const { updatedSubjectName } = req.body;
   try {
@@ -64,6 +77,12 @@ exports.updateSubject = async (req, res) => {
 
 // Delete a specific subject
 exports.deleteSubject = async (req, res) => {
+  // if (!req.user.isAdmin) {
+  //   return res.status(403).json({ error: 'You are not authorized to perform this action' });
+  // }
+  if (req.user.role !== 'Admin') {
+    return res.status(403).json({ error: 'You are not authorized to perform this action' });
+  }
   const { semester, branch, subject } = req.params;
   try {
     const deletedSubject = await Subject.findOneAndDelete({ semesterId: semester, branchId: branch, name: subject });
