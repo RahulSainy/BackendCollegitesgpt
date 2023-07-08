@@ -4,7 +4,7 @@ const subjectController = require('../controllers/subject');
 const authMiddleware = require('../middlewares/auth');
 
 // Get all subjects of a specific semester and branch
-router.get('/semester/:semester/branch/:branch/subjects', authMiddleware, subjectController.getSubjects);
+router.get('/semester/:semester/branch/:branch/subjects', subjectController.getSubjects);
 
 // Get a specific subject
 router.get('/semester/:semester/branch/:branch/subjects/:subject', authMiddleware, subjectController.getSubject);
