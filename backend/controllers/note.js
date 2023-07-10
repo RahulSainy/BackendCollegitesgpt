@@ -56,6 +56,78 @@ exports.addNoteSource = async (req, res) => {
   }
 };
 
+// Update a specific source in the notes of a specific subject in a semester
+exports.updateNoteSource = async (req, res) => {
+  const { semester, branch, subject, source } = req.params;
+  const { newSource } = req.body;
+
+  try {
+    // Find the note based on the provided semester, branch, and subject
+    const note = await Note.findOne({
+      semesterId: semester,
+      branchId: branch,
+      subjectId: subject,
+    });
+
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    // Find the specific source and update its sourceName
+    const sourceIndex = note.sources.findIndex(
+      (src) => src.sourceName === source
+    );
+
+    if (sourceIndex === -1) {
+      return res.status(404).json({ error: "Source not found" });
+    }
+
+    note.sources[sourceIndex].sourceName = newSource;
+
+    await note.save();
+
+    return res.status(200).json(note);
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+exports.deleteSource = async (req, res) => {
+  const { semester, branch, subject, source } = req.params;
+
+  try {
+    // Find the note based on the provided semester, branch, and subject
+    const note = await Note.findOne({
+      semesterId: semester,
+      branchId: branch,
+      subjectId: subject,
+    });
+
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    // Find the index of the source in the sources array
+    const sourceIndex = note.sources.findIndex(
+      (src) => src.sourceName === source
+    );
+
+    if (sourceIndex === -1) {
+      return res.status(404).json({ error: "Source not found" });
+    }
+
+    // Remove the source from the sources array
+    note.sources.splice(sourceIndex, 1);
+
+    await note.save();
+
+    return res.status(200).json(note);
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Add units to an existing source of notes of a specific subject in a semester
 exports.addNoteUnits = async (req, res) => {
   const { semester, branch, subject, source } = req.params;
