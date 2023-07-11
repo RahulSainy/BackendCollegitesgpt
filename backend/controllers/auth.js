@@ -94,7 +94,7 @@ const sendConfirmationEmail = async (user) => {
   });
 
   // const confirmationLink = `http://localhost:3000/api/users/confirm-email?email=${user.email}`;
-  const confirmationLink = `http://localhost:4200/confirm-email?email=${user.email}`;
+  const confirmationLink = `https://collegites-23d7b.firebaseapp.com/confirm-email?email=${user.email}`;
 
   const mailOptions = {
     from: "admin@collegites.tech",
@@ -150,6 +150,7 @@ exports.confirmEmail = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 // User login controller function
 exports.login = async (req, res) => {
   try {
@@ -164,9 +165,7 @@ exports.login = async (req, res) => {
 
     // Check if the email is confirmed
     if (!user.isEmailConfirmed) {
-      return res
-        .status(401)
-        .json({ error: "Please confirm your email address" });
+      return res.status(401).json({ error: "Please confirm your email address" });
     }
 
     // Validate user password
@@ -178,13 +177,17 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Generate and return the token
-    const token = generateToken(user.id);
+    // Generate JWT token with user ID and role
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    // Include user's semester and branch information in the response
+    // Include user's semester, branch, and name information in the response
     const { semester, branch, name } = user;
     console.log("token in login", token, semester, branch);
-    res.json({ token, semester, branch,name });
+    res.json({ token, semester, branch, name });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -291,7 +294,7 @@ const sendResetPasswordEmail = async (user, resetToken) => {
     },
   });
 
-  const resetLink = `http://localhost:4200/reset-password/${resetToken}`;
+  const resetLink = `https://collegites-23d7b.firebaseapp.com/reset-password/${resetToken}`;
   const mailOptions = {
     from: "admin@collegites.tech",
     to: user.email,
