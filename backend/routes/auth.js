@@ -12,7 +12,10 @@ router.post('/login', authController.login);
 // User email confirmation route
 router.get('/confirm-email', authController.confirmEmail);
 
-
+// Route to fetch user details by ID
+router.get('/profile/:userId', authController.getUserById);
+// Update user profile
+router.put("/profile/:userId", authMiddleware, authController.updateProfile);
 
 // Forget password route
 router.post('/forget-password', authController.forgetPassword);
