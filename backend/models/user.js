@@ -51,6 +51,45 @@ const userSchema = new mongoose.Schema({
   resetPasswordTokenExpiresAt: {
     type: Date,
   },
+  // cart: [
+  //   {
+  //     item: { type: mongoose.Schema.Types.ObjectId, ref: 'ShopItem', required: true },
+  //     quantity: { type: Number, default: 1 },
+  //   },
+  // ],
+  // orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
+  // wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ShopItem' }],
+
+  // Cart information
+  cart: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+
+
+
+  // Order history
+  orders: [
+    {
+      orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+        required: true,
+      },
+      // ... other order-related information ...
+    },
+  ],
+
+
 });
 
 const User = mongoose.model("User", userSchema);

@@ -12,6 +12,12 @@ dotenv.config();
 // const notesRoute = require("./routes/notes");
 const authRoute = require("./routes/auth");
 const userRoute = require("./routes/user");
+const productRoute = require("./routes/Product");
+const orderRoute = require("./routes/Order");
+const cartRoute = require("./routes/Cart");
+
+
+
 
 const subjectRoute = require("./routes/subject");
 const noteRoute = require("./routes/note");
@@ -31,6 +37,10 @@ connectToDatabase();
 // app.use("/api/notes", notesRoute);
 app.use("/api", authRoute);
 app.use("/api", userRoute);
+app.use("/api", productRoute);
+app.use("/api", orderRoute);
+app.use("/api", cartRoute);
+
 // Use the routes with the desired structure
 app.use("/api", subjectRoute);
 app.use("/api", noteRoute);
