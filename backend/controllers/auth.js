@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Hub = require('../models/Hub');
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const { hashPassword, comparePassword } = require("../utils/password");
@@ -344,6 +345,49 @@ exports.promoteToModerator = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// Assuming this function is triggered when a user is upgraded to a hub
+exports.promoteToHub = async (req, res) => {
+  const { userId } = req.params;
+  const { latitude, longitude } = req.body;
+
+  try {
+    // Find the user by userId
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update the user's role and hub information
+    user.role = 'Hub';
+    user.hubInfo = {
+      latitude,
+      longitude,
+    };
+
+    // Create a new hub document
+    const hub = new Hub({
+      user: userId,
+      availableProducts: [], // Initialize with an empty array or add initial products
+      latitude, // Store the latitude
+      longitude, // Store the longitude
+    });
+
+    await hub.save();
+
+    // Save the hubId in the user's hubInfo
+    user.hubInfo.hubId = hub._id;
+
+    await user.save();
+
+    res.json({ message: 'User promoted to hub successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
 
 // User controller function to fetch user details by ID
 exports.getUserById = async (req, res) => {

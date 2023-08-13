@@ -1,58 +1,87 @@
 const Order = require('../models/Order');
-const Product = require('../models/Product');
-const Cart = require('../models/Cart'); 
-// Place a new order
-// Place a new order
-exports.placeOrder = async (req, res) => {
-  const { userId, products } = req.body;
+const Hub = require('../models/Hub');
+const calculateDistance = require('../utils/distanceCalculator');
+// Update the getHubsWithAvailableProduct controller to accept user's location from the request body
+exports.getHubsWithAvailableProduct = async (req, res) => {
+  const productId = req.params.productId;
+  const { latitude, longitude } = req.body; // Use req.body instead of req.query
 
   try {
-    // Calculate total amount based on products' quantities and prices
-    let totalAmount = 0;
-    for (const product of products) {
-      const productDetails = await Product.findById(product.productId);
-      totalAmount += productDetails.price * product.quantity;
-    }
+    const hubsWithProduct = await Hub.find({
+      availableProducts: productId
+    });
 
-    // Create an order document with the user's ID and calculated total amount
-    const order = await Order.create({ userId, totalAmount });
+    const hubsWithDistance = hubsWithProduct.map(hub => ({
+      hub,
+      distance: calculateDistance(latitude, longitude, hub.latitude, hub.longitude)
+    }));
+    hubsWithDistance.sort((a, b) => a.distance - b.distance);
 
-    // Loop through the products and create order items for each
-    for (const product of products) {
-      const productDetails = await Product.findById(product.productId);
-
-      if (productDetails) {
-        // Create an order item and associate it with the order
-        order.products.push({
-          productId: product.productId,
-          quantity: product.quantity,
-        });
-      }
-    }
-
-    // Save the order
-    await order.save();
-
-    // Remove items from the cart
-    for (const product of products) {
-      await Cart.findOneAndDelete({ productId: product.productId, userId });
-    }
-
-    res.status(201).json({ message: 'Order placed successfully' });
+    res.json(hubsWithDistance);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Error fetching hubs with available product' });
   }
 };
 
 
-// Get user's order history
-exports.getOrderHistory = async (req, res) => {
-  const userId = req.params.userId;
+exports.createOrderWithSelectedHub = async (req, res) => {
+  const { userId, productId, totalPrice, latitude, longitude, selectedHubId } = req.body;
+
   try {
-    const orders = await Order.find({ userId }).sort({ orderDate: 'desc' });
+    const selectedHub = await Hub.findById(selectedHubId);
+    if (!selectedHub || !selectedHub.availableProducts.includes(productId)) {
+      return res.status(400).json({ message: 'Selected hub does not have the required product' });
+    }
+
+    const distanceToSelectedHub = calculateDistance(latitude, longitude, selectedHub.latitude, selectedHub.longitude);
+
+    const order = await Order.create({
+      user: userId,
+      products: [{ product: productId, quantity: 1 }],
+      totalPrice,
+      selectedHub: {
+        hubId: selectedHub._id,
+        distance: distanceToSelectedHub,
+      },
+      location: {
+        type: 'Point',
+        coordinates: [longitude, latitude],
+      },
+    });
+
+    // Notify the selected hub about the order
+    // Implement your notification mechanism here
+
+    res.status(201).json({ order, distanceToSelectedHub });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating order with selected hub' });
+  }
+};
+
+exports.getUserOrders = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const orders = await Order.find({ user: userId }).populate('selectedHub');
+
     res.json(orders);
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching user orders' });
+  }
+};
+
+exports.cancelOrder = async (req, res) => {
+  const orderId = req.params.orderId;
+
+  try {
+    const order = await Order.findByIdAndUpdate(orderId, { status: 'cancelled' }, { new: true });
+
+    res.json(order);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error cancelling order' });
   }
 };

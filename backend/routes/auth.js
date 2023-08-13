@@ -32,7 +32,7 @@ router.get('/protected-route', authMiddleware, (req, res) => {
 
 // User promotion to moderator route
 router.patch('/promote-to-moderator/:userId', authMiddleware, authController.promoteToModerator);
-
+router.post('/users/:userId/promote-to-hub', authController.promoteToHub);
 
 router.get('/is-logged-in', authMiddleware, (req, res) => {
   res.json(true); // User is logged in

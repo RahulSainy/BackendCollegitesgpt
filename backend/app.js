@@ -12,12 +12,11 @@ dotenv.config();
 // const notesRoute = require("./routes/notes");
 const authRoute = require("./routes/auth");
 const userRoute = require("./routes/user");
+
 const productRoute = require("./routes/Product");
 const orderRoute = require("./routes/Order");
 const cartRoute = require("./routes/Cart");
-
-
-
+const hubRoute = require("./routes/Hub");
 
 const subjectRoute = require("./routes/subject");
 const noteRoute = require("./routes/note");
@@ -46,6 +45,7 @@ app.use("/api", subjectRoute);
 app.use("/api", noteRoute);
 app.use("/api", bookRoute);
 app.use("/api",courseRoute);
+app.use("/api",hubRoute);
 app.use("/static", express.static("public"));
 
 module.exports = app;

@@ -1,25 +1,26 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'User', // Reference to the User model
     required: true,
   },
   products: [
     {
-      productId: {
+      product: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
+        ref: 'Product', // Reference to the Product model
         required: true,
       },
       quantity: {
         type: Number,
         required: true,
+        min: 1,
       },
     },
   ],
-  totalAmount: {
+  totalPrice: {
     type: Number,
     required: true,
   },
@@ -27,7 +28,36 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  status: {
+    type: String,
+    enum: ['placed', 'cancelled', 'delivered'],
+    default: 'placed',
+  },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  },
+  selectedHub: {
+    hubId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hub', // Reference to the Hub model
+      required: true,
+    },
+    distance: {
+      type: Number,
+      required: true,
+    },
+  },
 });
+
+orderSchema.index({ location: '2dsphere' }); // Create a 2dsphere index for geolocation
 
 const Order = mongoose.model('Order', orderSchema);
 
