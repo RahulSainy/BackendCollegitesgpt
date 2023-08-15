@@ -3,8 +3,8 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 
 const authMiddleware = async (req, res, next) => {
-    try {
-        // Check if the Authorization header is present
+  try {
+    // Check if the Authorization header is present
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       return res.status(401).json({ error: 'Authorization header missing' });

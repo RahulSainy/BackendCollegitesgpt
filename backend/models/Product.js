@@ -3,20 +3,22 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    // required: true,
     index: true, 
   },
   price: {
     type: Number,
-    required: true,
+    // required: true,
   },
   description: {
     type: String,
-    required: true,
+    // required: true,
   },
-  image: {
-    type: String, // You can store the image URL here
-  },
+  images: [{
+    type: String, // Array of image URLs
+    // required: true,
+    
+  }],
   tax: {
     type: Number, // Tax or commission percentage
   },
