@@ -9,7 +9,6 @@ router.get("/products", productController.getAllProducts);
 router.get("/product/:productId", productController.getProductById);
 router.put(
   "/product/:productId",
-  authMiddleware,
   productController.updateProduct
 );
 router.delete(

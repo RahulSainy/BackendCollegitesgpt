@@ -81,13 +81,28 @@ exports.getProductById = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 // Update product by ID
 exports.updateProduct = async (req, res) => {
   const productId = req.params.productId;
   const updateData = req.body;
 
   try {
+    // Check if there are new images to upload
+    if (req.files && req.files.length > 0) {
+      const imageUrls = [];
+
+      for (const file of req.files) {
+        const imageUrl = await imgbbUploader({
+          apiKey: process.env.IMGBB_API_KEY,
+          imagePath: file.path,
+        });
+        imageUrls.push(imageUrl.url);
+        fs.unlinkSync(file.path); // Remove the temporary image file
+      }
+
+      updateData.images = imageUrls; // Update the image URLs
+    }
+
     const product = await Product.findByIdAndUpdate(productId, updateData, {
       new: true,
     });
@@ -102,7 +117,6 @@ exports.updateProduct = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 // Delete product by ID
 exports.deleteProduct = async (req, res) => {
   const productId = req.params.productId;
