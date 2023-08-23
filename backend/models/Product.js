@@ -1,94 +1,96 @@
 const mongoose = require('mongoose');
-
+const slugify = require('slugify')
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
-    // required: true,
-    index: true, 
+    required: true,
+    unique: true,
+    minLength: 3,
+    maxLength: 50,
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true,
+    default: slugify('name'),
   },
   price: {
     type: Number,
-    // required: true,
+    required: true,
+    min: 0,
   },
   description: {
     type: String,
-    // required: true,
+    required: true,
+    minLength: 10,
   },
-  images: [{
-    type: String, // Array of image URLs
-    // required: true,
-    
-  }],
+  images: {
+    type: [String],
+    required: true,
+  },
   tax: {
-    type: Number, // Tax or commission percentage
+    type: Number,
   },
   expiry: {
-    type: Date, // Expiry date of the product
+    type: Date,
   },
   approvalStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending',
+    required: true,
   },
   category: {
     type: String,
-    index: true, // Index the product category
+    required: true,
   },
   date: {
-    type: Date, // Date of creation/modification
-    default: Date.now,
-    index: true,
+    type: Date,
+    required: true,
   },
   brand: {
-    type: String, // Brand of the product
-    index: true,
+    type: String,
   },
   tags: {
-    type: [String], // Array of tags for the product
-    index: true,
+    type: [String],
   },
   quantity: {
-    type: Number, // Available quantity of the product
-
+    type: Number,
   },
   rating: {
-    type: Number, // Average rating of the product
-    index: true,
-
+    type: Number,
   },
-  reviews: [
-    {
-      userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-      rating: {
-        type: Number,
-      },
-      review: {
-        type: String,
-      },
+  reviews: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
-  ],
+    rating: {
+      type: Number,
+    },
+    review: {
+      type: String,
+    },
+  }],
   returnPolicy: {
-    type: String, // Return policy details
+    type: String,
   },
   discount: {
-    type: Number, // Discount percentage
-    index: true,
-
+    type: Number,
   },
   salePrice: {
-    type: Number, // Sale price of the product
+    type: Number,
   },
   saleStartDate: {
-    type: Date, // Start date of the sale
+    type: Date,
   },
   saleEndDate: {
-    type: Date, // End date of the sale
+    type: Date,
   },
   creator: {
     type: mongoose.Schema.Types.ObjectId,
+    // required: true,
     ref: 'User',
   },
 });

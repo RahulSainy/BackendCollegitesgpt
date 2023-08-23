@@ -1,47 +1,55 @@
-const fs = require('fs');
-const path = require('path');
 const Product = require("../models/Product");
-const imgbbUploader = require("imgbb-uploader"); // Import the imgbb-uploader package
-const upload = require("../middlewares/uploadMiddleware"); // Update the path
-
 
 exports.addProduct = async (req, res) => {
   try {
     const {
       name,
       price,
-      // Add other properties as needed
+      description,
+      tax,
+      expiry,
+      approvalStatus,
+      category,
+      brand,
+      tags,
+      quantity,
+      rating,
+      returnPolicy,
+      discount,
+      salePrice,
+      saleStartDate,
+      saleEndDate,
+      creator,
     } = req.body;
 
-    // Handle image upload using multer middleware
-    upload.array('images')(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ error: err.message });
-      }
+    // Extract image URLs from the request body (assuming you have a field for image URLs)
+    const imageUrls = req.body.images || [];
 
-      const imageUrls = [];
-
-      // Upload each image to imgbb and collect the URLs
-      for (const file of req.files) {
-        const imageUrl = await imgbbUploader({
-          apiKey: process.env.IMGBB_API_KEY,
-          imagePath: file.path, // Use the file path directly
-        });
-        imageUrls.push(imageUrl.url); // Get the URL of the uploaded image
-      // Remove the temporary image file from the server
-      fs.unlinkSync(file.path);
-    }
-
-      const newProduct = new Product({
-        name,
-        price,
-        // Add other properties
-        images: imageUrls, // Use the image URLs
-      });
-
-      const savedProduct = await newProduct.save();
-      res.status(201).json(savedProduct);
+    const newProduct = new Product({
+      name,
+      price,
+      description,
+      images: imageUrls, // Use the extracted image URLs
+      tax,
+      expiry,
+      approvalStatus,
+      category,
+      date: Date.now(),
+      brand,
+      tags,
+      quantity,
+      rating,
+      reviews: [],
+      returnPolicy,
+      discount,
+      salePrice,
+      saleStartDate,
+      saleEndDate,
+      creator,
     });
+
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
   } catch (error) {
     console.error('Error adding product:', error);
     res.status(500).json({ error: 'Internal server error' });

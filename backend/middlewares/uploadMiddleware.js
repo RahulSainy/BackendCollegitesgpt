@@ -20,6 +20,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Create the multer upload instance
-const upload = multer({ storage, fileFilter });
+const imageUpload = multer({ storage, fileFilter });
 
-module.exports = upload;
+
+module.exports = imageUpload;
